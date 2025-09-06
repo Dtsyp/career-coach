@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from './ui/select';
 import { Skeleton } from './ui/skeleton';
-import { Search, ExternalLink, MapPin, DollarSign, Heart } from 'lucide-react';
+import { Search, ExternalLink, MapPin, Coins, Heart } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Job {
@@ -293,7 +293,7 @@ export default function Jobs() {
                           <span>{job.location}</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <DollarSign className="w-4 h-4 text-muted-foreground" />
+                          <Coins className="w-4 h-4 text-muted-foreground" />
                           <span>{job.salary}</span>
                         </div>
                       </div>
