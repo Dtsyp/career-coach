@@ -62,7 +62,7 @@ export default function Header() {
               </span>
             </Link>
 
-            <nav className="hidden md:flex space-x-6">
+            <nav className="hidden lg:flex space-x-6">
               {navigation.map(item => (
                 <Link
                   key={item.name}
@@ -85,7 +85,7 @@ export default function Header() {
             <Button
               variant="ghost"
               size="sm"
-              className="block md:hidden"
+              className="block lg:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? (
@@ -121,7 +121,7 @@ export default function Header() {
         </div>
 
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-sm">
+          <div className="lg:hidden border-t border-border bg-background/95 backdrop-blur-sm">
             <div className="px-2 pt-2 pb-3 space-y-1">
               {navigation.map(item => (
                 <Link
