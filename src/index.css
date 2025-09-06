@@ -5132,3 +5132,12 @@ button:disabled,
   cursor: not-allowed !important;
 }
 
+
+/* Force hide mobile menu button on screens >= 640px */
+@media (min-width: 640px) {
+  .block.sm\:hidden,
+  button.sm\:hidden,
+  [class*="sm:hidden"] {
+    display: none !important;
+  }
+}
