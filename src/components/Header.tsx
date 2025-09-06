@@ -62,7 +62,7 @@ export default function Header() {
             <Button
               variant="ghost"
               size="sm"
-              className="md:hidden"
+              className="block md:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? (
