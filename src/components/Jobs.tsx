@@ -135,7 +135,10 @@ export default function Jobs() {
     return matchesSearch && matchesRole;
   });
 
-  const handleSaveJob = (jobId: string) => {
+  const handleSaveJob = (jobId: string, event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+
     const newSavedJobs = new Set(savedJobs);
     if (newSavedJobs.has(jobId)) {
       newSavedJobs.delete(jobId);
@@ -270,7 +273,7 @@ export default function Jobs() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleSaveJob(job.id)}
+                            onClick={e => handleSaveJob(job.id, e)}
                             className={`p-1 flex-shrink-0 ${
                               savedJobs.has(job.id)
                                 ? 'text-red-600'
