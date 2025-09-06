@@ -5135,9 +5135,7 @@ button:disabled,
 
 /* Force hide mobile menu button on screens >= 640px */
 @media (min-width: 640px) {
-  .block.sm\:hidden,
-  button.sm\:hidden,
-  [class*="sm:hidden"] {
+  .mobile-menu-btn {
     display: none !important;
   }
 }

@@ -85,7 +85,7 @@ export default function Header() {
             <Button
               variant="ghost"
               size="sm"
-              className="block sm:hidden"
+              className="block sm:hidden mobile-menu-btn"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? (
