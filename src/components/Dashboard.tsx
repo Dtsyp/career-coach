@@ -46,7 +46,7 @@ export default function Dashboard() {
 
           <Card className="border-primary/20 bg-primary/5">
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <h3>Готовы к новому вызову?</h3>
                   <p className="text-sm text-muted-foreground mt-1">
@@ -54,10 +54,10 @@ export default function Dashboard() {
                     персональные рекомендации
                   </p>
                 </div>
-                <Link to="/interviews/new">
-                  <Button className="flex items-center gap-2">
+                <Link to="/interviews/new" className="self-start sm:self-auto">
+                  <Button className="flex items-center gap-2 w-full sm:w-auto">
                     <Plus className="w-4 h-4" />
-                    Начать новое собеседование
+                    <span className="sm:inline">Начать собеседование</span>
                   </Button>
                 </Link>
               </div>
