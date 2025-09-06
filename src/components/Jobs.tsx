@@ -12,8 +12,7 @@ import {
   SelectValue,
 } from './ui/select';
 import { Skeleton } from './ui/skeleton';
-import { Search, ExternalLink, MapPin, Coins, Heart } from 'lucide-react';
-import { toast } from 'sonner';
+import { Search, ExternalLink, MapPin, Coins } from 'lucide-react';
 
 interface Job {
   id: string;
@@ -109,15 +108,14 @@ export default function Jobs() {
     search: '',
     role: searchParams.get('role') || 'Все роли',
   });
-  const [savedJobs, setSavedJobs] = useState<Set<string>>(new Set(['2']));
 
   useEffect(() => {
     setLoading(true);
     setTimeout(() => {
-      setJobs(mockJobs.map(job => ({ ...job, saved: savedJobs.has(job.id) })));
+      setJobs(mockJobs);
       setLoading(false);
     }, 1000);
-  }, [savedJobs]);
+  }, []);
 
   const filteredJobs = jobs.filter(job => {
     const matchesSearch =
@@ -134,21 +132,6 @@ export default function Jobs() {
 
     return matchesSearch && matchesRole;
   });
-
-  const handleSaveJob = (jobId: string, event: React.MouseEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    const newSavedJobs = new Set(savedJobs);
-    if (newSavedJobs.has(jobId)) {
-      newSavedJobs.delete(jobId);
-      toast.success('Вакансия удалена из сохраненных');
-    } else {
-      newSavedJobs.add(jobId);
-      toast.success('Вакансия сохранена');
-    }
-    setSavedJobs(newSavedJobs);
-  };
 
   const updateFilter = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -258,32 +241,16 @@ export default function Jobs() {
                   <CardContent className="p-6 flex flex-col flex-1">
                     <div className="space-y-4 flex-1">
                       <div>
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="flex items-center gap-2 flex-wrap flex-1 pr-2">
-                            <h3 className="line-clamp-2">{job.title}</h3>
-                            {job.postedDays <= 3 && (
-                              <Badge
-                                variant="secondary"
-                                className="flex-shrink-0"
-                              >
-                                Новая
-                              </Badge>
-                            )}
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={e => handleSaveJob(job.id, e)}
-                            className={`p-1 flex-shrink-0 ${
-                              savedJobs.has(job.id)
-                                ? 'text-red-600'
-                                : 'text-muted-foreground'
-                            }`}
-                          >
-                            <Heart
-                              className={`w-4 h-4 ${savedJobs.has(job.id) ? 'fill-current' : ''}`}
-                            />
-                          </Button>
+                        <div className="flex items-center gap-2 flex-wrap mb-2">
+                          <h3 className="line-clamp-2">{job.title}</h3>
+                          {job.postedDays <= 3 && (
+                            <Badge
+                              variant="secondary"
+                              className="flex-shrink-0"
+                            >
+                              Новая
+                            </Badge>
+                          )}
                         </div>
                         <p className="text-sm text-muted-foreground">
                           {job.company}

@@ -12,15 +12,7 @@ import {
   SelectValue,
 } from './ui/select';
 import { Skeleton } from './ui/skeleton';
-import {
-  Search,
-  ExternalLink,
-  Clock,
-  Star,
-  Heart,
-  BookOpen,
-} from 'lucide-react';
-import { toast } from 'sonner';
+import { Search, ExternalLink, Clock, Star, BookOpen } from 'lucide-react';
 
 interface Course {
   id: string;
@@ -143,20 +135,14 @@ export default function Courses() {
     search: '',
     role: searchParams.get('role') || 'Все роли',
   });
-  const [savedCourses, setSavedCourses] = useState<Set<string>>(new Set(['2']));
 
   useEffect(() => {
     setLoading(true);
     setTimeout(() => {
-      setCourses(
-        mockCourses.map(course => ({
-          ...course,
-          saved: savedCourses.has(course.id),
-        }))
-      );
+      setCourses(mockCourses);
       setLoading(false);
     }, 1000);
-  }, [savedCourses]);
+  }, []);
 
   const filteredCourses = courses.filter(course => {
     const matchesSearch =
@@ -189,18 +175,6 @@ export default function Courses() {
 
     return matchesSearch && matchesRole;
   });
-
-  const handleSaveCourse = (courseId: string) => {
-    const newSavedCourses = new Set(savedCourses);
-    if (newSavedCourses.has(courseId)) {
-      newSavedCourses.delete(courseId);
-      toast.success('Курс удален из сохраненных');
-    } else {
-      newSavedCourses.add(courseId);
-      toast.success('Курс сохранен');
-    }
-    setSavedCourses(newSavedCourses);
-  };
 
   const updateFilter = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -323,24 +297,8 @@ export default function Courses() {
                   <CardContent className="p-6 flex flex-col flex-1">
                     <div className="space-y-4 flex-1">
                       <div>
-                        <div className="flex items-start justify-between mb-2">
-                          <h3 className="line-clamp-2 flex-1 pr-2">
-                            {course.title}
-                          </h3>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleSaveCourse(course.id)}
-                            className={`p-1 flex-shrink-0 ${
-                              savedCourses.has(course.id)
-                                ? 'text-red-600'
-                                : 'text-muted-foreground'
-                            }`}
-                          >
-                            <Heart
-                              className={`w-4 h-4 ${savedCourses.has(course.id) ? 'fill-current' : ''}`}
-                            />
-                          </Button>
+                        <div className="mb-2">
+                          <h3 className="line-clamp-2">{course.title}</h3>
                         </div>
                         <p className="text-sm text-muted-foreground">
                           {course.platform} • {course.instructor}
