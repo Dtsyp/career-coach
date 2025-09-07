@@ -10,14 +10,27 @@ import {
 } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { useInterview } from '../../contexts/InterviewContext';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Target, Brain, Code, Database, Cpu, Palette, Users, BarChart, Shield } from 'lucide-react';
 import { toast } from 'sonner';
-import { type Role, roles } from '../../mocks/interviewRoles';
+import { useRoles } from '../../hooks/useData';
 
 export default function InterviewNew() {
   const navigate = useNavigate();
   const { createInterview } = useInterview();
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  const { data: roles = [], isLoading } = useRoles();
+  const [selectedRole, setSelectedRole] = useState<any | null>(null);
+
+  const getRoleIcon = (roleId: string) => {
+    const iconMap: { [key: string]: JSX.Element } = {
+      'ml-developer': <Brain className="w-5 h-5" />,
+      'frontend-developer': <Code className="w-5 h-5" />,
+      'data-scientist': <Database className="w-5 h-5" />,
+      'backend-developer': <Cpu className="w-5 h-5" />,
+      'ui-ux-designer': <Palette className="w-5 h-5" />,
+      'product-manager': <Users className="w-5 h-5" />,
+    };
+    return iconMap[roleId] || <Target className="w-5 h-5" />;
+  };
 
   const handleStartInterview = () => {
     if (!selectedRole) return;
@@ -49,8 +62,28 @@ export default function InterviewNew() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {roles.map(role => (
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Card key={i}>
+                <CardHeader>
+                  <div className="animate-pulse">
+                    <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="animate-pulse">
+                    <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {roles.map(role => (
             <Card
               key={role.id}
               className={`cursor-pointer transition-all duration-150 hover:shadow-md flex flex-col h-full ${
@@ -63,12 +96,12 @@ export default function InterviewNew() {
               <CardHeader className="pb-3">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-primary/10 rounded-lg text-primary">
-                    {role.icon}
+                    {getRoleIcon(role.id)}
                   </div>
                   <div>
                     <CardTitle className="text-lg">{role.name}</CardTitle>
                     <CardDescription className="text-sm">
-                      {role.category}
+                      Роль
                     </CardDescription>
                   </div>
                 </div>
@@ -78,12 +111,12 @@ export default function InterviewNew() {
                   {role.description}
                 </p>
                 <div className="flex flex-wrap gap-1 min-h-7 items-start mt-auto">
-                  {role.skills.slice(0, 4).map(skill => (
-                    <Badge key={skill} variant="secondary" className="text-xs">
-                      {skill}
+                  {role.skills?.slice(0, 4).map((skill, index) => (
+                    <Badge key={index} variant="secondary" className="text-xs">
+                      {typeof skill === 'string' ? skill : skill.name}
                     </Badge>
                   ))}
-                  {role.skills.length > 4 && (
+                  {role.skills && role.skills.length > 4 && (
                     <Badge variant="secondary" className="text-xs">
                       +{role.skills.length - 4}
                     </Badge>
@@ -91,8 +124,9 @@ export default function InterviewNew() {
                 </div>
               </CardContent>
             </Card>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {selectedRole && (
           <div className="sticky bottom-4 bg-background/80 backdrop-blur-sm p-4 rounded-lg border">

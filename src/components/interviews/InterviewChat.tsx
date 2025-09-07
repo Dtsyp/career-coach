@@ -95,9 +95,8 @@ export default function InterviewChat() {
   const [currentInput, setCurrentInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [savedResponses, setSavedResponses] = useState<Record<string, string>>(
-    {}
-  );
+  const [responses, setResponses] = useState<Record<string, string>>({});
+  const [currentStep, setCurrentStep] = useState(1);
   const [isAIOnline, setIsAIOnline] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -114,7 +113,7 @@ export default function InterviewChat() {
       navigate('/');
       return;
     }
-    setSavedResponses(interview.responses || {});
+    setResponses({});
 
     if (messages.length === 0) {
       setTimeout(() => {
@@ -124,17 +123,14 @@ export default function InterviewChat() {
   }, [interview, navigate]);
 
   const getCurrentQuestion = () => {
-    const currentStep = interviewSteps[(interview?.currentStep ?? 1) - 1];
-    return currentStep?.questions[currentQuestion] || '';
+    const step = interviewSteps[currentStep - 1];
+    return step?.questions[currentQuestion] || '';
   };
 
   const addAIMessage = (content: string) => {
     setIsTyping(true);
 
-    const minTime = 200;
-    const maxTime = 3000;
-    const typingTime =
-      Math.floor(Math.random() * (maxTime - minTime + 1)) + minTime;
+    const typingTime = 1500;
 
     setTimeout(() => {
       const newMessage: Message = {
@@ -160,20 +156,16 @@ export default function InterviewChat() {
     setMessages(prev => [...prev, newMessage]);
     setCurrentInput('');
 
-    const responseKey = `step${interview?.currentStep}_q${currentQuestion}`;
-    const newResponses = { ...savedResponses, [responseKey]: content };
-    setSavedResponses(newResponses);
-
-    if (interview) {
-      updateInterview(interview.id, { responses: newResponses });
-    }
+    const responseKey = `step${currentStep}_q${currentQuestion}`;
+    const newResponses = { ...responses, [responseKey]: content };
+    setResponses(newResponses);
   };
 
-  const currentStep = interviewSteps[(interview?.currentStep ?? 1) - 1];
+  const step = interviewSteps[currentStep - 1];
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setIsAIOnline(Math.random() > 0.1); // 90% времени онлайн
+      setIsAIOnline(true);
     }, 10000);
 
     return () => clearInterval(interval);
@@ -192,15 +184,12 @@ export default function InterviewChat() {
     addUserMessage(currentInput);
 
     setTimeout(() => {
-      if (currentQuestion < (currentStep?.questions.length ?? 0) - 1) {
+      if (currentQuestion < (step?.questions.length ?? 0) - 1) {
         setCurrentQuestion(prev => prev + 1);
         setTimeout(() => addAIMessage(getCurrentQuestion()), 800);
-      } else if (interview && interview.currentStep < interviewSteps.length) {
-        const nextStep = interview.currentStep + 1;
-        updateInterview(interview.id, {
-          currentStep: nextStep,
-          progress: Math.round((nextStep / interviewSteps.length) * 100),
-        });
+      } else if (interview && currentStep < interviewSteps.length) {
+        const nextStep = currentStep + 1;
+        setCurrentStep(nextStep);
         setCurrentQuestion(0);
         setInterview(getInterview(id!));
 
@@ -219,8 +208,7 @@ export default function InterviewChat() {
           setTimeout(() => {
             if (interview) {
               updateInterview(interview.id, {
-                status: 'completed',
-                progress: 100,
+                status: 'recommendation',
               });
             }
             toast.success('Собеседование завершено!');
@@ -245,7 +233,7 @@ export default function InterviewChat() {
     });
   };
 
-  if (!interview || !currentStep) {
+  if (!interview || !step) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
         <p>Собеседование не найдено</p>
@@ -276,7 +264,7 @@ export default function InterviewChat() {
               <ArrowLeft className="w-4 h-4" />К собеседованиям
             </Button>
             <div>
-              <h1>{interview.role}</h1>
+              <h1>{interview?.job?.name || 'Unknown Role'}</h1>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <div
                   className={`w-2 h-2 rounded-full ${isAIOnline ? 'bg-green-500' : 'bg-gray-400'}`}
@@ -347,11 +335,11 @@ export default function InterviewChat() {
           <TypingIndicator isVisible={isTyping} />
 
           {!isTyping &&
-            currentStep?.quickReplies &&
+            step?.quickReplies &&
             messages.length > 0 &&
             messages[messages.length - 1]?.type === 'ai' && (
               <div className="flex flex-wrap gap-2 justify-start ml-11">
-                {currentStep?.quickReplies?.map(reply => (
+                {step?.quickReplies?.map(reply => (
                   <Button
                     key={reply}
                     variant="outline"

@@ -1,17 +1,19 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 import { useAuth } from '../contexts/AuthContext';
-import { useInterview } from '../contexts/InterviewContext';
+import { useInterviews } from '../hooks/useData';
+import { Interview } from '@/types';
 import { Plus, Calendar, Target, ExternalLink } from 'lucide-react';
 import ProgressChart from './ProgressChart';
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { interviews, selectedInterview, setSelectedInterview } =
-    useInterview();
+  const { data: interviews = [], isLoading } = useInterviews();
+  const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -21,10 +23,31 @@ export default function Dashboard() {
     });
   };
 
+  const getInterviewProgress = (interview: Interview) => {
+    switch (interview.status) {
+      case 'preference_interview':
+        return 20;
+      case 'hard_skills_interview':
+        return 60;
+      case 'recommendation':
+        return 100;
+      default:
+        return 0;
+    }
+  };
+
+  const getInterviewRole = (interview: Interview) => {
+    return interview.job?.name || 'Unknown Role';
+  };
+
+  const getInterviewDate = (interview: Interview) => {
+    return interview.created_at;
+  };
+
   const getOverallProgress = () => {
     if (interviews.length === 0) return 0;
     const total = interviews.reduce(
-      (sum, interview) => sum + interview.progress,
+      (sum, interview) => sum + getInterviewProgress(interview),
       0
     );
     return Math.round(total / interviews.length);
@@ -67,7 +90,14 @@ export default function Dashboard() {
           <div className="space-y-4 no-transition">
             <h2 className="dashboard-title">Мои собеседования</h2>
 
-            {interviews.length === 0 ? (
+            {isLoading ? (
+              <Card className="text-center py-12">
+                <CardContent>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                  <p className="text-muted-foreground">Загружаем собеседования...</p>
+                </CardContent>
+              </Card>
+            ) : interviews.length === 0 ? (
               <Card className="text-center py-12">
                 <CardContent>
                   <Target className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
@@ -96,23 +126,23 @@ export default function Dashboard() {
                       <div className="space-y-4 flex-1">
                         <div>
                           <h3 className="line-clamp-2 mb-2">
-                            {interview.role}
+                            {getInterviewRole(interview)}
                           </h3>
                           <div className="flex items-center justify-between">
                             <Badge
                               variant={
-                                interview.status === 'completed'
+                                interview.status === 'recommendation'
                                   ? 'default'
                                   : 'secondary'
                               }
                             >
-                              {interview.status === 'completed'
+                              {interview.status === 'recommendation'
                                 ? 'Завершено'
                                 : 'В процессе'}
                             </Badge>
                             <div className="flex items-center gap-1 text-sm text-muted-foreground">
                               <Calendar className="w-4 h-4" />
-                              {formatDate(interview.date)}
+                              {formatDate(getInterviewDate(interview))}
                             </div>
                           </div>
                         </div>
@@ -120,17 +150,17 @@ export default function Dashboard() {
                         <div className="space-y-2">
                           <div className="flex items-center justify-between text-sm">
                             <span>Прогресс</span>
-                            <span>{interview.progress}%</span>
+                            <span>{getInterviewProgress(interview)}%</span>
                           </div>
                           <Progress
-                            value={interview.progress}
+                            value={getInterviewProgress(interview)}
                             className="h-2"
                           />
                         </div>
 
                         <div className="flex gap-2">
                           <Link
-                            to={`/jobs?role=${encodeURIComponent(interview.role)}`}
+                            to={`/jobs?role=${encodeURIComponent(getInterviewRole(interview))}`}
                             className="flex-1"
                           >
                             <Button
@@ -143,7 +173,7 @@ export default function Dashboard() {
                             </Button>
                           </Link>
                           <Link
-                            to={`/courses?role=${encodeURIComponent(interview.role)}`}
+                            to={`/courses?role=${encodeURIComponent(getInterviewRole(interview))}`}
                             className="flex-1"
                           >
                             <Button
@@ -159,7 +189,7 @@ export default function Dashboard() {
                       </div>
 
                       <div className="mt-4">
-                        {interview.status === 'completed' ? (
+                        {interview.status === 'recommendation' ? (
                           <Link
                             to={`/interviews/${interview.id}/results`}
                             className="block"
@@ -204,16 +234,21 @@ export default function Dashboard() {
                 <div className="space-y-4">
                   <div className="text-center">
                     <ProgressChart
-                      progress={selectedInterview.progress}
+                      progress={getInterviewProgress(selectedInterview)}
                       size={120}
                     />
-                    <h4 className="mt-4">{selectedInterview.role}</h4>
+                    <h4 className="mt-4">
+                      {getInterviewRole(selectedInterview)}
+                    </h4>
                     <p className="text-sm text-muted-foreground">
-                      Закрыто {Math.round(selectedInterview.progress * 0.1)} из
-                      10 ключевых навыков
+                      Закрыто{' '}
+                      {Math.round(
+                        getInterviewProgress(selectedInterview) * 0.1
+                      )}{' '}
+                      из 10 ключевых навыков
                     </p>
                   </div>
-                  {selectedInterview.status === 'completed' && (
+                  {selectedInterview.status === 'recommendation' && (
                     <Link to={`/interviews/${selectedInterview.id}/results`}>
                       <Button variant="outline" className="w-full">
                         Посмотреть детали
@@ -234,8 +269,12 @@ export default function Dashboard() {
                           key={interview.id}
                           className="flex items-center justify-between"
                         >
-                          <span className="text-sm">{interview.role}</span>
-                          <Badge variant="outline">{interview.progress}%</Badge>
+                          <span className="text-sm">
+                            {getInterviewRole(interview)}
+                          </span>
+                          <Badge variant="outline">
+                            {getInterviewProgress(interview)}%
+                          </Badge>
                         </div>
                       ))}
                       <div className="pt-2 border-t">

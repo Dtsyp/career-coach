@@ -13,37 +13,32 @@ import {
 } from './ui/select';
 import { Skeleton } from './ui/skeleton';
 import { Search, ExternalLink, MapPin, Coins } from 'lucide-react';
-import { type Job, mockJobs, jobRoles } from '../mocks/jobs';
+import { jobRoles } from '../constants/roles';
+import { useVacancies } from '../hooks/useData';
+import { Vacancy } from '../types';
 
 export default function Jobs() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     search: '',
     role: searchParams.get('role') || 'Все роли',
   });
+  
+  const { data: vacancies = [], isLoading, error } = useVacancies();
+  
 
-  useEffect(() => {
-    setLoading(true);
-    setTimeout(() => {
-      setJobs(mockJobs);
-      setLoading(false);
-    }, 1000);
-  }, []);
-
-  const filteredJobs = jobs.filter(job => {
+  const filteredJobs = vacancies.filter(job => {
     const matchesSearch =
       filters.search === '' ||
-      job.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-      job.company.toLowerCase().includes(filters.search.toLowerCase()) ||
+      job.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+      job.company.name.toLowerCase().includes(filters.search.toLowerCase()) ||
       job.skills.some(skill =>
-        skill.toLowerCase().includes(filters.search.toLowerCase())
+        skill.name.toLowerCase().includes(filters.search.toLowerCase())
       );
 
     const matchesRole =
       filters.role === 'Все роли' ||
-      job.title.toLowerCase().includes(filters.role.toLowerCase());
+      job.name.toLowerCase().includes(filters.role.toLowerCase());
 
     return matchesSearch && matchesRole;
   });
@@ -101,12 +96,12 @@ export default function Jobs() {
 
         <div className="space-y-4">
           <p className="text-muted-foreground">
-            {loading
+            {isLoading
               ? 'Загрузка...'
               : `Найдено ${filteredJobs.length} вакансий`}
           </p>
 
-          {loading ? (
+          {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {Array.from({ length: 6 }).map((_, i) => (
                 <Card key={i}>
@@ -157,29 +152,25 @@ export default function Jobs() {
                     <div className="space-y-4 flex-1">
                       <div>
                         <div className="flex items-center gap-2 flex-wrap mb-2">
-                          <h3 className="line-clamp-2">{job.title}</h3>
-                          {job.postedDays <= 3 && (
-                            <Badge
-                              variant="secondary"
-                              className="flex-shrink-0"
-                            >
-                              Новая
-                            </Badge>
-                          )}
+                          <h3 className="line-clamp-2">{job.name}</h3>
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          {job.company}
+                          {job.company.name}
                         </p>
                       </div>
 
                       <div className="flex flex-col gap-2 text-sm">
                         <div className="flex items-center gap-1">
                           <MapPin className="w-4 h-4 text-muted-foreground" />
-                          <span>{job.location}</span>
+                          <span>{job.city ? job.city.name : 'Remote'}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Coins className="w-4 h-4 text-muted-foreground" />
-                          <span>{job.salary}</span>
+                          <span>
+                            {job.salary.min_salary && job.salary.max_salary
+                              ? `${job.salary.min_salary / 1000}-${job.salary.max_salary / 1000}k ${job.salary.currency === 'RUB' ? '₽' : '$'}`
+                              : 'Зп не указана'}
+                          </span>
                         </div>
                       </div>
 
@@ -190,11 +181,11 @@ export default function Jobs() {
                       <div className="flex flex-wrap gap-1 min-h-7 items-start">
                         {job.skills.slice(0, 4).map(skill => (
                           <Badge
-                            key={skill}
+                            key={skill.id}
                             variant="outline"
                             className="text-xs"
                           >
-                            {skill}
+                            {skill.name}
                           </Badge>
                         ))}
                         {job.skills.length > 4 && (
@@ -204,10 +195,6 @@ export default function Jobs() {
                         )}
                       </div>
 
-                      <div className="text-xs text-muted-foreground h-4 flex items-center">
-                        Опубликовано {job.postedDays}{' '}
-                        {job.postedDays === 1 ? 'день' : 'дня'} назад
-                      </div>
                     </div>
 
                     <Button className="w-full flex items-center gap-2 mt-4">

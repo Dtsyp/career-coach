@@ -57,7 +57,7 @@ export default tseslint.config(
             'src/components/**/*.tsx',
             'src/contexts/**/*.tsx',
             'src/components/ui/**/*.{ts,tsx}',
-            'src/mocks/**/*.{ts,tsx}',
+            'src/constants/**/*.{ts,tsx}',
           ],
         },
       ],

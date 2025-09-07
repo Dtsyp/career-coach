@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -12,33 +12,25 @@ import {
   SelectValue,
 } from './ui/select';
 import { Skeleton } from './ui/skeleton';
-import { Search, ExternalLink, Clock, Star, BookOpen } from 'lucide-react';
-import { type Course, mockCourses, courseRoles } from '../mocks/courses';
+import { Search, ExternalLink, BookOpen } from 'lucide-react';
+import { courseRoles } from '../constants/roles';
+import { useCourses } from '../hooks/useData';
 
 export default function Courses() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     search: '',
     role: searchParams.get('role') || 'Все роли',
   });
 
-  useEffect(() => {
-    setLoading(true);
-    setTimeout(() => {
-      setCourses(mockCourses);
-      setLoading(false);
-    }, 1000);
-  }, []);
+  const { data: courses = [], isLoading } = useCourses();
 
   const filteredCourses = courses.filter(course => {
     const matchesSearch =
       filters.search === '' ||
-      course.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-      course.platform.toLowerCase().includes(filters.search.toLowerCase()) ||
+      course.name.toLowerCase().includes(filters.search.toLowerCase()) ||
       course.skills.some(skill =>
-        skill.toLowerCase().includes(filters.search.toLowerCase())
+        skill.name.toLowerCase().includes(filters.search.toLowerCase())
       );
 
     const matchesRole =
@@ -51,11 +43,11 @@ export default function Courses() {
             'TensorFlow',
             'PyTorch',
             'Python',
-          ].includes(skill);
+          ].includes(skill.name);
         }
         if (filters.role === 'Data Scientist') {
           return ['Data Analysis', 'Statistics', 'Python', 'SQL'].includes(
-            skill
+            skill.name
           );
         }
         return true;
@@ -68,19 +60,6 @@ export default function Courses() {
     setFilters(prev => ({ ...prev, [key]: value }));
     if (key === 'role' && value !== 'Все роли') {
       setSearchParams({ role: value });
-    }
-  };
-
-  const getLevelColor = (level: string) => {
-    switch (level) {
-      case 'Beginner':
-        return 'bg-green-100 text-green-800';
-      case 'Intermediate':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'Advanced':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -130,12 +109,12 @@ export default function Courses() {
 
         <div className="space-y-4">
           <p className="text-muted-foreground">
-            {loading
+            {isLoading
               ? 'Загрузка...'
               : `Найдено ${filteredCourses.length} курсов`}
           </p>
 
-          {loading ? (
+          {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {Array.from({ length: 6 }).map((_, i) => (
                 <Card key={i}>
@@ -186,34 +165,15 @@ export default function Courses() {
                     <div className="space-y-4 flex-1">
                       <div>
                         <div className="mb-2">
-                          <h3 className="line-clamp-2">{course.title}</h3>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          {course.platform} • {course.instructor}
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-4 text-sm">
-                        <div className="flex items-center gap-1">
-                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                          <span>{course.rating}</span>
-                          <span className="text-muted-foreground">
-                            ({course.reviews})
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-4 h-4 text-muted-foreground" />
-                          <span>{course.duration}</span>
+                          <h3 className="line-clamp-2">{course.name}</h3>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2 flex-wrap">
-                        <Badge className={getLevelColor(course.level)}>
-                          {course.level}
-                        </Badge>
-                        <Badge variant="outline">{course.language}</Badge>
                         <Badge variant="secondary" className="font-medium">
-                          {course.price}
+                          {course.price.price === 0
+                            ? 'Бесплатно'
+                            : `${course.price.price}${course.price.currency === 'RUB' ? '₽' : '$'}`}
                         </Badge>
                       </div>
 
@@ -225,32 +185,17 @@ export default function Courses() {
                         <div className="flex flex-wrap gap-1 min-h-7 items-start">
                           {course.skills.slice(0, 4).map(skill => (
                             <Badge
-                              key={skill}
+                              key={skill.id}
                               variant="outline"
                               className="text-xs"
                             >
-                              {skill}
+                              {skill.name}
                             </Badge>
                           ))}
                           {course.skills.length > 4 && (
                             <Badge variant="outline" className="text-xs">
                               +{course.skills.length - 4}
                             </Badge>
-                          )}
-                        </div>
-
-                        <div className="text-xs h-8 flex items-start">
-                          {course.gapsAddressed.length > 0 ? (
-                            <>
-                              <span className="text-muted-foreground">
-                                Закрывает пробелы:{' '}
-                              </span>
-                              <span className="text-primary font-medium">
-                                {course.gapsAddressed.join(', ')}
-                              </span>
-                            </>
-                          ) : (
-                            <span>&nbsp;</span>
                           )}
                         </div>
                       </div>

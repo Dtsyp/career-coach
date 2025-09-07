@@ -5,6 +5,8 @@ import {
   Route,
   Navigate,
 } from 'react-router-dom';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Toaster } from './components/ui/sonner';
 import Header from './components/Header';
 import Dashboard from './components/Dashboard';
@@ -20,6 +22,7 @@ import Profile from './components/Profile';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { InterviewProvider } from './contexts/InterviewContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { queryClient } from './lib/queryClient';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -154,13 +157,16 @@ function AppContent() {
 export default function App() {
   return (
     <Router>
-      <ThemeProvider>
-        <AuthProvider>
-          <InterviewProvider>
-            <AppContent />
-          </InterviewProvider>
-        </AuthProvider>
-      </ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <AuthProvider>
+            <InterviewProvider>
+              <AppContent />
+            </InterviewProvider>
+          </AuthProvider>
+        </ThemeProvider>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
     </Router>
   );
 }
