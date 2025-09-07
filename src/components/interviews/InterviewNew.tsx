@@ -10,18 +10,28 @@ import {
 } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { useInterview } from '../../contexts/InterviewContext';
-import { ArrowLeft, Target, Brain, Code, Database, Cpu, Palette, Users, BarChart, Shield } from 'lucide-react';
+import {
+  ArrowLeft,
+  Target,
+  Brain,
+  Code,
+  Database,
+  Cpu,
+  Palette,
+  Users,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { useRoles } from '../../hooks/useData';
+import { Role } from '../../types/role';
 
 export default function InterviewNew() {
   const navigate = useNavigate();
   const { createInterview } = useInterview();
   const { data: roles = [], isLoading } = useRoles();
-  const [selectedRole, setSelectedRole] = useState<any | null>(null);
+  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
 
   const getRoleIcon = (roleId: string) => {
-    const iconMap: { [key: string]: JSX.Element } = {
+    const iconMap: { [key: string]: React.ReactElement } = {
       'ml-developer': <Brain className="w-5 h-5" />,
       'frontend-developer': <Code className="w-5 h-5" />,
       'data-scientist': <Database className="w-5 h-5" />,
@@ -84,46 +94,50 @@ export default function InterviewNew() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {roles.map(role => (
-            <Card
-              key={role.id}
-              className={`cursor-pointer transition-all duration-150 hover:shadow-md flex flex-col h-full ${
-                selectedRole?.id === role.id
-                  ? 'ring-2 ring-primary border-primary/50'
-                  : ''
-              }`}
-              onClick={() => setSelectedRole(role)}
-            >
-              <CardHeader className="pb-3">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-lg text-primary">
-                    {getRoleIcon(role.id)}
+              <Card
+                key={role.id}
+                className={`cursor-pointer transition-all duration-150 hover:shadow-md flex flex-col h-full ${
+                  selectedRole?.id === role.id
+                    ? 'ring-2 ring-primary border-primary/50'
+                    : ''
+                }`}
+                onClick={() => setSelectedRole(role)}
+              >
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-primary/10 rounded-lg text-primary">
+                      {getRoleIcon(role.id)}
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg">{role.name}</CardTitle>
+                      <CardDescription className="text-sm">
+                        Роль
+                      </CardDescription>
+                    </div>
                   </div>
-                  <div>
-                    <CardTitle className="text-lg">{role.name}</CardTitle>
-                    <CardDescription className="text-sm">
-                      Роль
-                    </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-0 flex-1 flex flex-col">
+                  <p className="text-sm text-muted-foreground mb-3">
+                    {role.description}
+                  </p>
+                  <div className="flex flex-wrap gap-1 min-h-7 items-start mt-auto">
+                    {role.skills?.slice(0, 4).map((skill, index) => (
+                      <Badge
+                        key={index}
+                        variant="secondary"
+                        className="text-xs"
+                      >
+                        {skill}
+                      </Badge>
+                    ))}
+                    {role.skills && role.skills.length > 4 && (
+                      <Badge variant="secondary" className="text-xs">
+                        +{role.skills.length - 4}
+                      </Badge>
+                    )}
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0 flex-1 flex flex-col">
-                <p className="text-sm text-muted-foreground mb-3">
-                  {role.description}
-                </p>
-                <div className="flex flex-wrap gap-1 min-h-7 items-start mt-auto">
-                  {role.skills?.slice(0, 4).map((skill, index) => (
-                    <Badge key={index} variant="secondary" className="text-xs">
-                      {typeof skill === 'string' ? skill : skill.name}
-                    </Badge>
-                  ))}
-                  {role.skills && role.skills.length > 4 && (
-                    <Badge variant="secondary" className="text-xs">
-                      +{role.skills.length - 4}
-                    </Badge>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
             ))}
           </div>
         )}

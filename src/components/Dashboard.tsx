@@ -13,7 +13,9 @@ import ProgressChart from './ProgressChart';
 export default function Dashboard() {
   const { user } = useAuth();
   const { data: interviews = [], isLoading } = useInterviews();
-  const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null);
+  const [selectedInterview, setSelectedInterview] = useState<Interview | null>(
+    null
+  );
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -94,7 +96,9 @@ export default function Dashboard() {
               <Card className="text-center py-12">
                 <CardContent>
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                  <p className="text-muted-foreground">Загружаем собеседования...</p>
+                  <p className="text-muted-foreground">
+                    Загружаем собеседования...
+                  </p>
                 </CardContent>
               </Card>
             ) : interviews.length === 0 ? (

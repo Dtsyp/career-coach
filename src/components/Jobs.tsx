@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -15,7 +15,6 @@ import { Skeleton } from './ui/skeleton';
 import { Search, ExternalLink, MapPin, Coins } from 'lucide-react';
 import { jobRoles } from '../constants/roles';
 import { useVacancies } from '../hooks/useData';
-import { Vacancy } from '../types';
 
 export default function Jobs() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -23,9 +22,8 @@ export default function Jobs() {
     search: '',
     role: searchParams.get('role') || 'Все роли',
   });
-  
-  const { data: vacancies = [], isLoading, error } = useVacancies();
-  
+
+  const { data: vacancies = [], isLoading } = useVacancies();
 
   const filteredJobs = vacancies.filter(job => {
     const matchesSearch =
@@ -194,7 +192,6 @@ export default function Jobs() {
                           </Badge>
                         )}
                       </div>
-
                     </div>
 
                     <Button className="w-full flex items-center gap-2 mt-4">

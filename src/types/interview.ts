@@ -3,11 +3,13 @@ import { UserPublic } from './user';
 import { Course } from './course';
 import { Vacancy } from './vacancy';
 
+// eslint-disable-next-line import/no-unused-modules
 export type InterviewStatus =
   | 'preference_interview'
   | 'hard_skills_interview'
   | 'recommendation';
 
+// eslint-disable-next-line import/no-unused-modules
 export interface Interview {
   id: string;
   user: UserPublic;
@@ -20,6 +22,7 @@ export interface Interview {
   last_update?: string; // ISO date string
 }
 
+// eslint-disable-next-line import/no-unused-modules
 export interface InterviewCreate {
   user: UserPublic;
   status: InterviewStatus;
@@ -27,6 +30,7 @@ export interface InterviewCreate {
   last_update?: string;
 }
 
+// eslint-disable-next-line import/no-unused-modules
 export interface InterviewUpdate {
   id: string;
   job?: Job;
