@@ -54,12 +54,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const userData = await authService.getCurrentUser();
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
-    } catch (error: any) {
-      if (error?.response?.status === 401) {
+    } catch (error: unknown) {
+      const errorResponse = error as { response?: { status?: number } };
+      if (errorResponse?.response?.status === 401) {
         throw new Error('Неверный email или пароль');
-      } else if (error?.response?.status === 404) {
+      } else if (errorResponse?.response?.status === 404) {
         throw new Error('Пользователь не найден');
-      } else if (error?.response?.status === 422) {
+      } else if (errorResponse?.response?.status === 422) {
         throw new Error('Неверный формат данных');
       } else {
         throw new Error('Ошибка подключения к серверу');
@@ -76,16 +77,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   ) => {
     setLoading(true);
     try {
-      const response = await authService.register({ 
-        email, 
-        name: username, 
-        password 
+      const response = await authService.register({
+        email,
+        name: username,
+        password,
       });
       localStorage.setItem('access_token', response.access_token);
       const userData = await authService.getCurrentUser();
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
-    } catch (error) {
+    } catch {
       throw new Error('Ошибка регистрации');
     } finally {
       setLoading(false);

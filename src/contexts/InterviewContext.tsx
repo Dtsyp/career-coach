@@ -36,7 +36,7 @@ export function InterviewProvider({ children }: { children: React.ReactNode }) {
 
   const createInterview = async (_jobName: string): Promise<string> => {
     if (!user) throw new Error('User not authenticated');
-    
+
     const newInterview = await interviewsService.createInterview({
       user: user,
       status: 'preference_interview',
@@ -47,7 +47,10 @@ export function InterviewProvider({ children }: { children: React.ReactNode }) {
     return newInterview.id;
   };
 
-  const updateInterview = async (id: string, updates: Partial<Interview>): Promise<void> => {
+  const updateInterview = async (
+    id: string,
+    updates: Partial<Interview>
+  ): Promise<void> => {
     const updatedInterview = await interviewsService.updateInterview({
       id,
       ...updates,
@@ -67,7 +70,7 @@ export function InterviewProvider({ children }: { children: React.ReactNode }) {
 
   const loadInterviews = async (): Promise<void> => {
     if (!user) return;
-    
+
     setLoading(true);
     try {
       const data = await interviewsService.getInterviews();

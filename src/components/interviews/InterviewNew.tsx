@@ -49,7 +49,7 @@ export default function InterviewNew() {
       const interviewId = await createInterview(selectedRole.name);
       toast.success(`Собеседование на роль "${selectedRole.name}" начато`);
       navigate(`/interviews/${interviewId}/chat`);
-    } catch (error) {
+    } catch {
       toast.error('Не удалось создать собеседование');
     }
   };

@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'http://localhost/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost/v1';
 
 // eslint-disable-next-line import/no-unused-modules
 export const apiClient = axios.create({
