@@ -61,7 +61,7 @@ export default function Dashboard() {
         <div className="lg:col-span-2 space-y-6">
           <div className="space-y-2 no-transition">
             <h1 className="text-3xl font-bold main-greeting dashboard-title">
-              Привет, {user?.username}!
+              Привет, {user?.name}!
             </h1>
             <p className="text-muted-foreground dashboard-greeting">
               Продолжайте развивать свою карьеру с помощью персонализированных

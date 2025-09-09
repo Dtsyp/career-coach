@@ -75,7 +75,7 @@ export default function Profile() {
 
   const handleExportData = () => {
     const data = {
-      profile: { username: user?.username, email: user?.email },
+      profile: { name: user?.name, email: user?.email },
       interviews: [], // Would get from context
       preferences: preferences,
     };
@@ -143,7 +143,7 @@ export default function Profile() {
                   <Label htmlFor="username">Имя пользователя</Label>
                   <Input
                     id="username"
-                    value={user?.username || ''}
+                    value={user?.name || ''}
                     disabled
                     className="bg-muted"
                   />

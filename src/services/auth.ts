@@ -5,7 +5,6 @@ import { UserPublic, UserCreate, UserLogin } from '@/types';
 export interface LoginResponse {
   access_token: string;
   token_type: string;
-  user: UserPublic;
 }
 
 // eslint-disable-next-line import/no-unused-modules

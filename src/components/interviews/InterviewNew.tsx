@@ -42,12 +42,16 @@ export default function InterviewNew() {
     return iconMap[roleId] || <Target className="w-5 h-5" />;
   };
 
-  const handleStartInterview = () => {
+  const handleStartInterview = async () => {
     if (!selectedRole) return;
 
-    const interviewId = createInterview(selectedRole.name);
-    toast.success(`Собеседование на роль "${selectedRole.name}" начато`);
-    navigate(`/interviews/${interviewId}/chat`);
+    try {
+      const interviewId = await createInterview(selectedRole.name);
+      toast.success(`Собеседование на роль "${selectedRole.name}" начато`);
+      navigate(`/interviews/${interviewId}/chat`);
+    } catch (error) {
+      toast.error('Не удалось создать собеседование');
+    }
   };
 
   return (

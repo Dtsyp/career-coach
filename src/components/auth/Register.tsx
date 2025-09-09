@@ -41,8 +41,8 @@ export default function Register() {
 
     if (!formData.password) {
       newErrors.password = 'Пароль обязателен';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Пароль должен быть не менее 6 символов';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Пароль должен быть не менее 8 символов';
     }
 
     if (!formData.confirmPassword) {
@@ -136,7 +136,7 @@ export default function Register() {
                 id="password"
                 name="password"
                 type="password"
-                placeholder="Введите пароль"
+                placeholder="Минимум 8 символов"
                 value={formData.password}
                 onChange={handleChange}
                 aria-invalid={!!errors.password}

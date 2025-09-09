@@ -10,7 +10,6 @@ export const useLogin = () => {
     mutationFn: authService.login,
     onSuccess: data => {
       localStorage.setItem('access_token', data.access_token);
-      localStorage.setItem('user', JSON.stringify(data.user));
     },
   });
 };
@@ -20,7 +19,6 @@ export const useRegister = () => {
     mutationFn: authService.register,
     onSuccess: data => {
       localStorage.setItem('access_token', data.access_token);
-      localStorage.setItem('user', JSON.stringify(data.user));
     },
   });
 };
