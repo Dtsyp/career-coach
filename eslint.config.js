@@ -58,6 +58,8 @@ export default tseslint.config(
             'src/contexts/**/*.tsx',
             'src/components/ui/**/*.{ts,tsx}',
             'src/constants/**/*.{ts,tsx}',
+            'src/services/**/*.{ts,tsx}',
+            'src/hooks/**/*.{ts,tsx}',
           ],
         },
       ],
