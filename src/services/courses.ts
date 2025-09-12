@@ -3,7 +3,10 @@ import { Course } from '@/types';
 
 // eslint-disable-next-line import/no-unused-modules
 export const coursesService = {
-  getCourses: async (limit: number = 20, interviewId?: string): Promise<Course[]> => {
+  getCourses: async (
+    limit: number = 20,
+    interviewId?: string
+  ): Promise<Course[]> => {
     if (interviewId) {
       const response = await apiClient.get('/courses', {
         params: { limit, interview_id: interviewId },

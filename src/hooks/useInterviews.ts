@@ -25,7 +25,7 @@ export const useInterviews = (limit?: number) => {
       return failureCount < 2;
     },
     // Возвращаем пустой массив при ошибке 404
-    select: (data) => data || [],
+    select: data => data || [],
   });
 };
 
@@ -50,11 +50,15 @@ export const useCreateInterview = () => {
     mutationFn: interviewsService.createInterview,
     onSuccess: (newInterview: Interview) => {
       queryClient.invalidateQueries({ queryKey: interviewKeys.lists() });
-      queryClient.setQueryData(interviewKeys.detail(newInterview.id), newInterview);
+      queryClient.setQueryData(
+        interviewKeys.detail(newInterview.id),
+        newInterview
+      );
       toast.success('Интервью успешно создано!');
     },
     onError: (error: any) => {
-      const message = error?.response?.data?.detail || 'Ошибка при создании интервью';
+      const message =
+        error?.response?.data?.detail || 'Ошибка при создании интервью';
       toast.error(message);
       console.error('Error creating interview:', error);
     },
@@ -66,12 +70,16 @@ export const useUpdateInterview = () => {
   return useMutation<Interview, Error, InterviewUpdate>({
     mutationFn: interviewsService.updateInterview,
     onSuccess: (updatedInterview: Interview) => {
-      queryClient.setQueryData(interviewKeys.detail(updatedInterview.id), updatedInterview);
+      queryClient.setQueryData(
+        interviewKeys.detail(updatedInterview.id),
+        updatedInterview
+      );
       queryClient.invalidateQueries({ queryKey: interviewKeys.lists() });
       toast.success('Интервью успешно обновлено!');
     },
     onError: (error: any) => {
-      const message = error?.response?.data?.detail || 'Ошибка при обновлении интервью';
+      const message =
+        error?.response?.data?.detail || 'Ошибка при обновлении интервью';
       toast.error(message);
       console.error('Error updating interview:', error);
     },

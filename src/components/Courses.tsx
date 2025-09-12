@@ -18,12 +18,9 @@ export default function Courses() {
           </p>
         </div>
 
-
         <div className="space-y-4">
           <p className="text-muted-foreground">
-            {isLoading
-              ? 'Загрузка...'
-              : `Найдено ${courses.length} курсов`}
+            {isLoading ? 'Загрузка...' : `Найдено ${courses.length} курсов`}
           </p>
 
           {isLoading ? (
@@ -49,9 +46,7 @@ export default function Courses() {
               <CardContent>
                 <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                 <h3>Курсы не найдены</h3>
-                <p className="text-muted-foreground">
-                  Попробуйте позже
-                </p>
+                <p className="text-muted-foreground">Попробуйте позже</p>
               </CardContent>
             </Card>
           ) : (

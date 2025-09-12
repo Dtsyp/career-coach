@@ -1,4 +1,3 @@
-import React from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
@@ -275,14 +274,14 @@ export default function InterviewDetail() {
                 {interview.vacancies.slice(0, 3).map((vacancy) => (
                   <div key={vacancy.id} className="border rounded p-3">
                     <h4 className="font-medium text-sm line-clamp-2">
-                      {vacancy.title}
+                      {vacancy.name}
                     </h4>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {vacancy.company}
+                      {vacancy.company.name}
                     </p>
                     {vacancy.salary && (
                       <p className="text-xs text-primary font-medium mt-1">
-                        {vacancy.salary}
+                        {vacancy.salary.min_salary && vacancy.salary.max_salary ? `${vacancy.salary.min_salary} - ${vacancy.salary.max_salary} ${vacancy.salary.currency}` : `от ${vacancy.salary.min_salary || vacancy.salary.max_salary} ${vacancy.salary.currency}`}
                       </p>
                     )}
                   </div>
@@ -313,14 +312,14 @@ export default function InterviewDetail() {
                 {interview.courses.slice(0, 3).map((course) => (
                   <div key={course.id} className="border rounded p-3">
                     <h4 className="font-medium text-sm line-clamp-2">
-                      {course.title}
+                      {course.name}
                     </h4>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {course.provider}
+                      Курс
                     </p>
-                    {course.duration && (
+                    {course.time_consumption && (
                       <p className="text-xs text-primary font-medium mt-1">
-                        {course.duration}
+                        {course.time_consumption}
                       </p>
                     )}
                   </div>

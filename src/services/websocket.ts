@@ -11,7 +11,9 @@ export interface WSMessage {
 }
 
 export type MessageHandler = (message: WSMessage) => void;
-export type ConnectionHandler = (status: 'connected' | 'disconnected' | 'error') => void;
+export type ConnectionHandler = (
+  status: 'connected' | 'disconnected' | 'error'
+) => void;
 
 class InterviewWebSocket {
   private ws: WebSocket | null = null;
@@ -29,7 +31,7 @@ class InterviewWebSocket {
   connectRaw(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.isIntentionallyClosed = false;
-      
+
       try {
         if (this.ws) {
           this.ws.close();
@@ -46,13 +48,13 @@ class InterviewWebSocket {
           resolve();
         };
 
-        this.ws.onerror = (error) => {
+        this.ws.onerror = error => {
           console.error('WebSocket error:', error);
           this.notifyConnectionHandlers('error');
           reject(new Error('WebSocket connection failed'));
         };
 
-        this.ws.onclose = (event) => {
+        this.ws.onclose = event => {
           console.log('WebSocket closed:', event.code, event.reason);
           this.ws = null;
           this.notifyConnectionHandlers('disconnected');
@@ -67,7 +69,7 @@ class InterviewWebSocket {
   connect(user: UserPublic): Promise<string> {
     return new Promise((resolve, reject) => {
       this.isIntentionallyClosed = false;
-      
+
       try {
         // Close existing connection if any
         if (this.ws) {
@@ -81,29 +83,29 @@ class InterviewWebSocket {
           console.log('WebSocket connected');
           this.reconnectAttempts = 0;
           this.notifyConnectionHandlers('connected');
-          
+
           // Send init message
           const initMessage: WSMessage = {
             type: 'init',
             user: {
               id: user.id,
-              name: user.name
-            }
+              name: user.name,
+            },
           };
           setTimeout(() => this.send(initMessage), 10);
         };
 
-        this.ws.onmessage = (event) => {
+        this.ws.onmessage = event => {
           try {
             const message: WSMessage = JSON.parse(event.data);
             console.log('WebSocket message received:', message);
-            
+
             // Handle ready message specially to resolve the promise
             if (message.type === 'ready' && message.interview_id) {
               this.currentInterviewId = message.interview_id;
               resolve(message.interview_id);
             }
-            
+
             // Notify all handlers
             this.notifyMessageHandlers(message);
           } catch (error) {
@@ -111,17 +113,17 @@ class InterviewWebSocket {
           }
         };
 
-        this.ws.onerror = (error) => {
+        this.ws.onerror = error => {
           console.error('WebSocket error:', error);
           this.notifyConnectionHandlers('error');
           reject(new Error('WebSocket connection failed'));
         };
 
-        this.ws.onclose = (event) => {
+        this.ws.onclose = event => {
           console.log('WebSocket closed:', event.code, event.reason);
           this.ws = null;
           this.notifyConnectionHandlers('disconnected');
-          
+
           // Attempt reconnection if not intentionally closed
           if (!this.isIntentionallyClosed && this.currentInterviewId) {
             this.attemptReconnect();
@@ -142,7 +144,7 @@ class InterviewWebSocket {
       }
 
       this.currentInterviewId = interviewId;
-      
+
       // Set up one-time handler for ready response
       const handleReady = (message: WSMessage) => {
         if (message.type === 'ready') {
@@ -153,12 +155,12 @@ class InterviewWebSocket {
           reject(new Error(message.error || 'Failed to resume interview'));
         }
       };
-      
+
       this.onMessage(handleReady);
-      
+
       const resumeMessage: WSMessage = {
         type: 'resume',
-        interview_id: interviewId
+        interview_id: interviewId,
       };
       this.send(resumeMessage);
     });
@@ -171,7 +173,7 @@ class InterviewWebSocket {
 
     const userMessage: WSMessage = {
       type: 'user_msg',
-      message
+      message,
     };
     this.send(userMessage);
   }
@@ -193,27 +195,29 @@ class InterviewWebSocket {
 
     this.reconnectAttempts++;
     const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
-    
-    console.log(`Attempting to reconnect in ${delay}ms (attempt ${this.reconnectAttempts})`);
-    
+
+    console.log(
+      `Attempting to reconnect in ${delay}ms (attempt ${this.reconnectAttempts})`
+    );
+
     this.reconnectTimeout = setTimeout(async () => {
       if (this.currentInterviewId) {
         try {
           // Create new WebSocket connection
           const wsUrl = `${this.baseUrl}/ws/coach`;
           this.ws = new WebSocket(wsUrl);
-          
+
           this.ws.onopen = () => {
             console.log('WebSocket reconnected');
             this.reconnectAttempts = 0;
             this.notifyConnectionHandlers('connected');
-            
+
             // Resume the interview
             if (this.currentInterviewId) {
               this.resume(this.currentInterviewId);
             }
           };
-          
+
           // Reattach event handlers
           this.attachEventHandlers();
         } catch (error) {
@@ -227,7 +231,7 @@ class InterviewWebSocket {
   private attachEventHandlers(): void {
     if (!this.ws) return;
 
-    this.ws.onmessage = (event) => {
+    this.ws.onmessage = event => {
       try {
         const message: WSMessage = JSON.parse(event.data);
         this.notifyMessageHandlers(message);
@@ -236,16 +240,16 @@ class InterviewWebSocket {
       }
     };
 
-    this.ws.onerror = (error) => {
+    this.ws.onerror = error => {
       console.error('WebSocket error:', error);
       this.notifyConnectionHandlers('error');
     };
 
-    this.ws.onclose = (event) => {
+    this.ws.onclose = event => {
       console.log('WebSocket closed:', event.code, event.reason);
       this.ws = null;
       this.notifyConnectionHandlers('disconnected');
-      
+
       if (!this.isIntentionallyClosed && this.currentInterviewId) {
         this.attemptReconnect();
       }
@@ -278,7 +282,9 @@ class InterviewWebSocket {
     });
   }
 
-  private notifyConnectionHandlers(status: 'connected' | 'disconnected' | 'error'): void {
+  private notifyConnectionHandlers(
+    status: 'connected' | 'disconnected' | 'error'
+  ): void {
     this.connectionHandlers.forEach(handler => {
       try {
         handler(status);
@@ -290,23 +296,23 @@ class InterviewWebSocket {
 
   disconnect(): void {
     this.isIntentionallyClosed = true;
-    
+
     if (this.reconnectTimeout) {
       clearTimeout(this.reconnectTimeout);
       this.reconnectTimeout = null;
     }
-    
+
     if (this.ws) {
       // Send close message before disconnecting
       const closeMessage: WSMessage = {
-        type: 'close'
+        type: 'close',
       };
       this.send(closeMessage);
-      
+
       this.ws.close();
       this.ws = null;
     }
-    
+
     this.currentInterviewId = null;
     this.messageHandlers.clear();
     this.connectionHandlers.clear();
