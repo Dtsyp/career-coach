@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 import { useAuth } from '../contexts/AuthContext';
-import { useInterviews } from '../hooks/useData';
+import { useInterviews } from '../hooks/useInterviews';
 import { Interview } from '@/types';
 import { Plus, Calendar, Target, ExternalLink } from 'lucide-react';
 import ProgressChart from './ProgressChart';
@@ -164,6 +164,19 @@ export default function Dashboard() {
 
                         <div className="flex gap-2">
                           <Link
+                            to={`/interviews/${interview.id}`}
+                            className="flex-1"
+                          >
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-xs w-full"
+                            >
+                              <ExternalLink className="w-3 h-3 mr-1" />
+                              Подробнее
+                            </Button>
+                          </Link>
+                          <Link
                             to={`/jobs?role=${encodeURIComponent(getInterviewRole(interview))}`}
                             className="flex-1"
                           >
@@ -174,19 +187,6 @@ export default function Dashboard() {
                             >
                               <ExternalLink className="w-3 h-3 mr-1" />
                               Вакансии
-                            </Button>
-                          </Link>
-                          <Link
-                            to={`/courses?role=${encodeURIComponent(getInterviewRole(interview))}`}
-                            className="flex-1"
-                          >
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="text-xs w-full"
-                            >
-                              <ExternalLink className="w-3 h-3 mr-1" />
-                              Курсы
                             </Button>
                           </Link>
                         </div>

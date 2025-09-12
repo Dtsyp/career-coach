@@ -16,6 +16,7 @@ import ResetPassword from './components/auth/ResetPassword';
 import InterviewNew from './components/interviews/InterviewNew';
 import InterviewChat from './components/interviews/InterviewChat';
 import InterviewResults from './components/interviews/InterviewResults';
+import InterviewDetail from './components/interviews/InterviewDetail';
 import Jobs from './components/Jobs';
 import Courses from './components/Courses';
 import Profile from './components/Profile';
@@ -119,6 +120,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <InterviewResults />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/interviews/:id"
+            element={
+              <ProtectedRoute>
+                <InterviewDetail />
               </ProtectedRoute>
             }
           />

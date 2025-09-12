@@ -8,7 +8,20 @@ export const vacanciesService = {
     return response.data;
   },
 
-  getVacancies: async (limit: number = 20): Promise<Vacancy[]> => {
+  getVacancies: async (limit: number = 20, interviewId?: string): Promise<Vacancy[]> => {
+    if (interviewId) {
+      const response = await apiClient.get('/vacancies', {
+        params: { limit, interview_id: interviewId },
+      });
+      return response.data;
+    }
+    const response = await apiClient.get('/vacancies/public', {
+      params: { limit },
+    });
+    return response.data;
+  },
+
+  getPublicVacancies: async (limit: number = 20): Promise<Vacancy[]> => {
     const response = await apiClient.get('/vacancies/public', {
       params: { limit },
     });

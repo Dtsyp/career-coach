@@ -1,52 +1,12 @@
-import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { Button } from './ui/button';
-import { Input } from './ui/input';
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from './ui/select';
 import { Skeleton } from './ui/skeleton';
-import { Search, ExternalLink, MapPin, Coins } from 'lucide-react';
-import { jobRoles } from '../constants/roles';
-import { useVacancies } from '../hooks/useData';
+import { ExternalLink, MapPin, Coins, Briefcase } from 'lucide-react';
+import { usePublicVacancies } from '../hooks/useVacancies';
 
 export default function Jobs() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [filters, setFilters] = useState({
-    search: '',
-    role: searchParams.get('role') || 'Все роли',
-  });
-
-  const { data: vacancies = [], isLoading } = useVacancies();
-
-  const filteredJobs = vacancies.filter(job => {
-    const matchesSearch =
-      filters.search === '' ||
-      job.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-      job.company.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-      job.skills.some(skill =>
-        skill.name.toLowerCase().includes(filters.search.toLowerCase())
-      );
-
-    const matchesRole =
-      filters.role === 'Все роли' ||
-      job.name.toLowerCase().includes(filters.role.toLowerCase());
-
-    return matchesSearch && matchesRole;
-  });
-
-  const updateFilter = (key: string, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-    if (key === 'role' && value !== 'Все роли') {
-      setSearchParams({ role: value });
-    }
-  };
+  const { data: vacancies = [], isLoading } = usePublicVacancies();
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -58,45 +18,12 @@ export default function Jobs() {
           </p>
         </div>
 
-        <Card className="sticky top-20 z-10 bg-background/95 backdrop-blur-sm">
-          <CardContent className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="lg:col-span-2">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                  <Input
-                    placeholder="Поиск по вакансиям, компаниям, навыкам..."
-                    value={filters.search}
-                    onChange={e => updateFilter('search', e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-
-              <Select
-                value={filters.role}
-                onValueChange={(value: string) => updateFilter('role', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Роль" />
-                </SelectTrigger>
-                <SelectContent>
-                  {jobRoles.map(role => (
-                    <SelectItem key={role} value={role}>
-                      {role}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
 
         <div className="space-y-4">
           <p className="text-muted-foreground">
             {isLoading
               ? 'Загрузка...'
-              : `Найдено ${filteredJobs.length} вакансий`}
+              : `Найдено ${vacancies.length} вакансий`}
           </p>
 
           {isLoading ? (
@@ -117,31 +44,19 @@ export default function Jobs() {
                 </Card>
               ))}
             </div>
-          ) : filteredJobs.length === 0 ? (
+          ) : vacancies.length === 0 ? (
             <Card className="text-center py-12">
               <CardContent>
-                <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <Briefcase className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                 <h3>Вакансии не найдены</h3>
                 <p className="text-muted-foreground">
-                  Попробуйте изменить фильтры или поисковый запрос
+                  Попробуйте позже
                 </p>
-                <Button
-                  variant="outline"
-                  onClick={() =>
-                    setFilters({
-                      search: '',
-                      role: 'Все роли',
-                    })
-                  }
-                  className="mt-4"
-                >
-                  Сбросить фильтры
-                </Button>
               </CardContent>
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredJobs.map(job => (
+              {vacancies.map(job => (
                 <Card
                   key={job.id}
                   className="hover:shadow-md cursor-pointer flex flex-col h-full"
