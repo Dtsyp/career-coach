@@ -1,5 +1,6 @@
 import { UserPublic } from '@/types/user';
 
+// eslint-disable-next-line import/no-unused-modules
 export interface WSMessage {
   type: 'init' | 'resume' | 'user_msg' | 'ready' | 'final' | 'error' | 'close';
   user?: { id: string; name: string };
@@ -10,7 +11,9 @@ export interface WSMessage {
   error?: string;
 }
 
+// eslint-disable-next-line import/no-unused-modules
 export type MessageHandler = (message: WSMessage) => void;
+// eslint-disable-next-line import/no-unused-modules
 export type ConnectionHandler = (
   status: 'connected' | 'disconnected' | 'error'
 ) => void;
@@ -336,4 +339,5 @@ const wsService = new InterviewWebSocket(
   import.meta.env.VITE_WS_URL || 'ws://localhost:8000'
 );
 
+// eslint-disable-next-line import/no-unused-modules
 export default wsService;

@@ -19,7 +19,7 @@ export default function InterviewChat() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentInput, setCurrentInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -38,74 +38,81 @@ export default function InterviewChat() {
   }, [messages]);
 
   // Handle WebSocket messages
-  const handleWSMessage = useCallback((message: WSMessage) => {
-    console.log('Received WS message:', message);
-    
-    switch (message.type) {
-      case 'ready':
-        setIsLoading(false);
-        if (message.interview_id) {
-          setInterviewId(message.interview_id);
-        }
-        if (message.status) {
-          setInterviewStatus(message.status);
-        }
-        // Add welcome message
-        if (messages.length === 0) {
-          const welcomeMsg: Message = {
-            id: `ai-welcome-${Date.now()}`,
-            type: 'ai',
-            content: 'Привет! Расскажи коротко о своём опыте и желаемой роли/позиции. Укажи ключевые навыки (стек).',
-            timestamp: new Date(),
-          };
-          setMessages([welcomeMsg]);
-        }
-        break;
-        
-      case 'final':
-        setIsTyping(false);
-        if (message.answer) {
-          const aiMessage: Message = {
-            id: `ai-${Date.now()}`,
-            type: 'ai',
-            content: message.answer,
-            timestamp: new Date(),
-          };
-          setMessages(prev => [...prev, aiMessage]);
-        }
-        if (message.status) {
-          setInterviewStatus(message.status);
-          
-          // Check if interview is complete
-          if (message.status === 'RECOMMENDATION') {
-            setTimeout(() => {
-              toast.success('Интервью завершено! Переход к результатам...');
-              navigate(`/interviews/${interviewId || id}/results`);
-            }, 2000);
+  const handleWSMessage = useCallback(
+    (message: WSMessage) => {
+      console.log('Received WS message:', message);
+
+      switch (message.type) {
+        case 'ready':
+          setIsLoading(false);
+          if (message.interview_id) {
+            setInterviewId(message.interview_id);
           }
-        }
-        break;
-        
-      case 'error':
-        setIsTyping(false);
-        toast.error(message.error || 'Произошла ошибка');
-        console.error('WebSocket error:', message.error);
-        break;
-    }
-  }, [messages.length, navigate, id, interviewId]);
+          if (message.status) {
+            setInterviewStatus(message.status);
+          }
+          // Add welcome message
+          if (messages.length === 0) {
+            const welcomeMsg: Message = {
+              id: `ai-welcome-${Date.now()}`,
+              type: 'ai',
+              content:
+                'Привет! Расскажи коротко о своём опыте и желаемой роли/позиции. Укажи ключевые навыки (стек).',
+              timestamp: new Date(),
+            };
+            setMessages([welcomeMsg]);
+          }
+          break;
+
+        case 'final':
+          setIsTyping(false);
+          if (message.answer) {
+            const aiMessage: Message = {
+              id: `ai-${Date.now()}`,
+              type: 'ai',
+              content: message.answer,
+              timestamp: new Date(),
+            };
+            setMessages(prev => [...prev, aiMessage]);
+          }
+          if (message.status) {
+            setInterviewStatus(message.status);
+
+            // Check if interview is complete
+            if (message.status === 'RECOMMENDATION') {
+              setTimeout(() => {
+                toast.success('Интервью завершено! Переход к результатам...');
+                navigate(`/interviews/${interviewId || id}/results`);
+              }, 2000);
+            }
+          }
+          break;
+
+        case 'error':
+          setIsTyping(false);
+          toast.error(message.error || 'Произошла ошибка');
+          console.error('WebSocket error:', message.error);
+          break;
+      }
+    },
+    [messages.length, navigate, id, interviewId]
+  );
 
   // Handle connection status changes
-  const handleConnectionStatus = useCallback((status: 'connected' | 'disconnected' | 'error') => {
-    setIsConnected(status === 'connected');
-    
-    if (status === 'error') {
-      toast.error('Ошибка подключения к серверу');
-    } else if (status === 'disconnected') {
-      toast.warning('Соединение потеряно. Попытка переподключения...');
-    } else if (status === 'connected' && interviewId) {
-      toast.success('Соединение восстановлено');
-    }
-  }, [interviewId]);
+  const handleConnectionStatus = useCallback(
+    (status: 'connected' | 'disconnected' | 'error') => {
+      setIsConnected(status === 'connected');
+
+      if (status === 'error') {
+        toast.error('Ошибка подключения к серверу');
+      } else if (status === 'disconnected') {
+        toast.warning('Соединение потеряно. Попытка переподключения...');
+      } else if (status === 'connected' && interviewId) {
+        toast.success('Соединение восстановлено');
+      }
+    },
+    [interviewId]
+  );
 
   // Initialize WebSocket connection
   useEffect(() => {
@@ -119,7 +126,7 @@ export default function InterviewChat() {
         // Subscribe to events
         wsService.onMessage(handleWSMessage);
         wsService.onConnection(handleConnectionStatus);
-        
+
         if (!interviewId) {
           if (id && id !== 'new') {
             try {
@@ -128,6 +135,7 @@ export default function InterviewChat() {
               }
               await wsService.resume(id);
               setInterviewId(id);
+              // eslint-disable-next-line unused-imports/no-unused-vars
             } catch (error) {
               wsService.disconnect();
               wsService.clearCurrentInterview();
@@ -178,7 +186,7 @@ export default function InterviewChat() {
       timestamp: new Date(),
     };
     setMessages(prev => [...prev, userMessage]);
-    
+
     // Send message via WebSocket
     try {
       wsService.sendUserMessage(currentInput);
@@ -207,13 +215,13 @@ export default function InterviewChat() {
 
   const getStatusBadge = () => {
     const statusMap: Record<string, string> = {
-      'PREFERENCE_INTERVIEW': 'Сбор информации',
-      'FORMING_PROBLEMS': 'Подготовка задач',
-      'HARD_SKILLS_INTERVIEW': 'Техническое интервью',
-      'SCORING': 'Оценка навыков',
-      'RECOMMENDATION': 'Формирование рекомендаций',
+      PREFERENCE_INTERVIEW: 'Сбор информации',
+      FORMING_PROBLEMS: 'Подготовка задач',
+      HARD_SKILLS_INTERVIEW: 'Техническое интервью',
+      SCORING: 'Оценка навыков',
+      RECOMMENDATION: 'Формирование рекомендаций',
     };
-    
+
     return statusMap[interviewStatus] || interviewStatus;
   };
 
@@ -242,13 +250,14 @@ export default function InterviewChat() {
               onClick={() => navigate('/interviews')}
               className="flex items-center gap-2"
             >
-              <ArrowLeft className="w-4 h-4" />
-              К интервью
+              <ArrowLeft className="w-4 h-4" />К интервью
             </Button>
             <div>
               <h1 className="text-2xl font-bold">AI Карьерный коуч</h1>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+                <div
+                  className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}
+                />
                 <span>{isConnected ? 'Подключено' : 'Нет соединения'}</span>
                 {isConnected ? (
                   <Wifi className="w-3 h-3" />
@@ -331,7 +340,9 @@ export default function InterviewChat() {
         <div className="border rounded-lg p-4 bg-card">
           <div className="flex items-end gap-2">
             <Textarea
-              placeholder={isConnected ? "Напишите ваш ответ..." : "Нет соединения..."}
+              placeholder={
+                isConnected ? 'Напишите ваш ответ...' : 'Нет соединения...'
+              }
               value={currentInput}
               onChange={e => setCurrentInput(e.target.value)}
               onKeyPress={handleKeyPress}

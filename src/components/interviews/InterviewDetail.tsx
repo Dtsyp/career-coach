@@ -5,16 +5,16 @@ import { Badge } from '../ui/badge';
 import { Progress } from '../ui/progress';
 import { useInterview } from '../../hooks/useInterviews';
 import { InterviewStatus } from '@/types';
-import { 
-  ArrowLeft, 
-  Calendar, 
-  Target, 
-  User, 
-  Briefcase, 
+import {
+  ArrowLeft,
+  Calendar,
+  Target,
+  User,
+  Briefcase,
   BookOpen,
   ExternalLink,
   Clock,
-  CheckCircle
+  CheckCircle,
 } from 'lucide-react';
 
 const getStatusText = (status: InterviewStatus) => {
@@ -30,7 +30,9 @@ const getStatusText = (status: InterviewStatus) => {
   }
 };
 
-const getStatusVariant = (status: InterviewStatus): 'default' | 'secondary' | 'outline' => {
+const getStatusVariant = (
+  status: InterviewStatus
+): 'default' | 'secondary' | 'outline' => {
   switch (status) {
     case 'recommendation':
       return 'default';
@@ -93,9 +95,7 @@ export default function InterviewDetail() {
             <p className="text-muted-foreground mb-4">
               Возможно, интервью было удалено или у вас нет доступа к нему
             </p>
-            <Button onClick={() => navigate('/')}>
-              Вернуться на главную
-            </Button>
+            <Button onClick={() => navigate('/')}>Вернуться на главную</Button>
           </CardContent>
         </Card>
       </div>
@@ -116,8 +116,7 @@ export default function InterviewDetail() {
           onClick={() => navigate('/')}
           className="flex items-center gap-2"
         >
-          <ArrowLeft className="w-4 h-4" />
-          К интервью
+          <ArrowLeft className="w-4 h-4" />К интервью
         </Button>
         <div>
           <h1 className="text-2xl font-bold">Детали интервью</h1>
@@ -144,7 +143,9 @@ export default function InterviewDetail() {
                   <label className="text-sm font-medium text-muted-foreground">
                     Роль
                   </label>
-                  <p className="text-lg">{interview.job?.name || 'Не указана'}</p>
+                  <p className="text-lg">
+                    {interview.job?.name || 'Не указана'}
+                  </p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">
@@ -157,7 +158,7 @@ export default function InterviewDetail() {
                   </div>
                 </div>
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium text-muted-foreground">
                   Прогресс
@@ -206,7 +207,7 @@ export default function InterviewDetail() {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
-                  {interview.skills.map((skill) => (
+                  {interview.skills.map(skill => (
                     <Badge key={skill.id} variant="secondary">
                       {skill.name}
                     </Badge>
@@ -238,7 +239,7 @@ export default function InterviewDetail() {
                     </Button>
                   </Link>
                 )}
-                
+
                 <Button variant="outline" disabled className="w-full">
                   <BookOpen className="w-4 h-4 mr-2" />
                   История чата (скоро)
@@ -260,7 +261,9 @@ export default function InterviewDetail() {
             </CardHeader>
             <CardContent>
               <p className="font-medium">{interview.user.name}</p>
-              <p className="text-sm text-muted-foreground">{interview.user.email}</p>
+              <p className="text-sm text-muted-foreground">
+                {interview.user.email}
+              </p>
             </CardContent>
           </Card>
 
@@ -271,7 +274,7 @@ export default function InterviewDetail() {
                 <CardTitle>Рекомендованные вакансии</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {interview.vacancies.slice(0, 3).map((vacancy) => (
+                {interview.vacancies.slice(0, 3).map(vacancy => (
                   <div key={vacancy.id} className="border rounded p-3">
                     <h4 className="font-medium text-sm line-clamp-2">
                       {vacancy.name}
@@ -281,14 +284,16 @@ export default function InterviewDetail() {
                     </p>
                     {vacancy.salary && (
                       <p className="text-xs text-primary font-medium mt-1">
-                        {vacancy.salary.min_salary && vacancy.salary.max_salary ? `${vacancy.salary.min_salary} - ${vacancy.salary.max_salary} ${vacancy.salary.currency}` : `от ${vacancy.salary.min_salary || vacancy.salary.max_salary} ${vacancy.salary.currency}`}
+                        {vacancy.salary.min_salary && vacancy.salary.max_salary
+                          ? `${vacancy.salary.min_salary} - ${vacancy.salary.max_salary} ${vacancy.salary.currency}`
+                          : `от ${vacancy.salary.min_salary || vacancy.salary.max_salary} ${vacancy.salary.currency}`}
                       </p>
                     )}
                   </div>
                 ))}
-                
+
                 {interview.vacancies.length > 3 && (
-                  <Link 
+                  <Link
                     to={`/jobs?role=${encodeURIComponent(interview.job?.name || '')}`}
                     className="block"
                   >
@@ -309,14 +314,12 @@ export default function InterviewDetail() {
                 <CardTitle>Рекомендованные курсы</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {interview.courses.slice(0, 3).map((course) => (
+                {interview.courses.slice(0, 3).map(course => (
                   <div key={course.id} className="border rounded p-3">
                     <h4 className="font-medium text-sm line-clamp-2">
                       {course.name}
                     </h4>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Курс
-                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Курс</p>
                     {course.time_consumption && (
                       <p className="text-xs text-primary font-medium mt-1">
                         {course.time_consumption}
@@ -324,9 +327,9 @@ export default function InterviewDetail() {
                     )}
                   </div>
                 ))}
-                
+
                 {interview.courses.length > 3 && (
-                  <Link 
+                  <Link
                     to={`/courses?role=${encodeURIComponent(interview.job?.name || '')}`}
                     className="block"
                   >
